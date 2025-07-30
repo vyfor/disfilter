@@ -76,7 +76,7 @@ function createBlockButton(serverId, isBlocked = false) {
     blockButton.setAttribute('title', isBlocked ? 'Unblock this server' : 'Block this server');
     blockButton.setAttribute('aria-label', isBlocked ? 'Unblock this server' : 'Block this server');
 
-    blockButton.innerHTML = isBlocked ? '🛡️' : '⛔';
+    blockButton.textContent = isBlocked ? '🛡️' : '⛔';
 
     blockButton.addEventListener('click', (e) => {
         e.preventDefault();
@@ -113,7 +113,7 @@ function updateBlockButtons(serverId, isBlocked) {
         button.className = `disfilter-block-btn ${isBlocked ? 'blocked' : ''}`;
         button.setAttribute('title', isBlocked ? 'Unblock this server' : 'Block this server');
         button.setAttribute('aria-label', isBlocked ? 'Unblock this server' : 'Block this server');
-        button.innerHTML = isBlocked ? '🛡️' : '⛔';
+        button.textContent = isBlocked ? '🛡️' : '⛔';
     });
 }
 
