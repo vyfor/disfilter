@@ -1,0 +1,40 @@
+{
+    "manifest_version": 3,
+    "name": "DisFilter - Disboard Server Filter",
+    "short_name": "DisFilter",
+    "version": "1.0.0",
+    "description": "A utility extension for filtering servers on Disboard by regex, tags and IDs.",
+    "author": "vyfor",
+    "homepage_url": "https://github.com/vyfor/disfilter",
+    "icons": {
+        "16": "icons/icon16.png",
+        "32": "icons/icon32.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+    },
+    "action": {
+        "default_popup": "src/popup/popup.html",
+        "default_icon": {
+            "16": "icons/icon16.png",
+            "32": "icons/icon32.png",
+            "48": "icons/icon48.png",
+            "128": "icons/icon128.png"
+        }
+    },
+    "permissions": [
+        "storage"
+    ],
+    "host_permissions": [
+        "*://disboard.org/*"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "*://disboard.org/*"
+            ],
+            "js": [
+                "src/content.js"
+            ]
+        }
+    ]
+}
