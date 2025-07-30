@@ -69,6 +69,95 @@ function updateBlockedCountForUI() {
     sendBlockedCountToPopup();
 }
 
+function createBlockButton(serverId, isBlocked = false) {
+    const blockButton = document.createElement('button');
+    blockButton.className = `disfilter-block-btn ${isBlocked ? 'blocked' : ''}`;
+    blockButton.setAttribute('data-server-id', serverId);
+    blockButton.setAttribute('title', isBlocked ? 'Unblock this server' : 'Block this server');
+    blockButton.setAttribute('aria-label', isBlocked ? 'Unblock this server' : 'Block this server');
+
+    blockButton.innerHTML = isBlocked ? '🛡️' : '⛔';
+
+    blockButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleServerBlock(serverId);
+    });
+
+    return blockButton;
+}
+
+function toggleServerBlock(serverId) {
+    if (!serverId) return;
+
+    const isCurrentlyBlocked = disfilterSettings.serverIds.includes(serverId);
+
+    if (isCurrentlyBlocked) {
+        disfilterSettings.serverIds = disfilterSettings.serverIds.filter(id => id !== serverId);
+        showToast(`Server unblocked`, 'success');
+    } else {
+        disfilterSettings.serverIds.push(serverId);
+        showToast(`Server blocked`, 'success');
+    }
+
+    browserAPI.storage.local.set({ disfilterSettings });
+
+    updateBlockButtons(serverId, !isCurrentlyBlocked);
+
+    applyFiltering();
+}
+
+function updateBlockButtons(serverId, isBlocked) {
+    const buttons = document.querySelectorAll(`[data-server-id="${serverId}"]`);
+    buttons.forEach(button => {
+        button.className = `disfilter-block-btn ${isBlocked ? 'blocked' : ''}`;
+        button.setAttribute('title', isBlocked ? 'Unblock this server' : 'Block this server');
+        button.setAttribute('aria-label', isBlocked ? 'Unblock this server' : 'Block this server');
+        button.innerHTML = isBlocked ? '🛡️' : '⛔';
+    });
+}
+
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `disfilter-toast disfilter-toast-${type}`;
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.classList.add('show'), 10);
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }, 1000);
+}
+
+function addBlockButtonToCard(cardElement) {
+    if (cardElement.querySelector('.disfilter-block-btn')) {
+        return;
+    }
+
+    const { serverId } = getServerInfo(cardElement);
+    if (!serverId) return;
+
+    const isBlocked = disfilterSettings.serverIds.includes(serverId);
+    const blockButton = createBlockButton(serverId, isBlocked);
+
+    const serverMenu = cardElement.querySelector('.server-menu.dropdown');
+    if (serverMenu) {
+        serverMenu.parentNode.insertBefore(blockButton, serverMenu);
+    } else {
+        const serverMisc = cardElement.querySelector('.server-misc');
+        if (serverMisc) {
+            serverMisc.appendChild(blockButton);
+        }
+    }
+}
+
 function applyFiltering() {
     const allColumnCards = document.querySelectorAll('.columns.is-multiline > .column');
 
@@ -77,6 +166,8 @@ function applyFiltering() {
         if (!cardElement) {
             return;
         }
+
+        addBlockButtonToCard(cardElement);
 
         const serverInfo = getServerInfo(cardElement);
         const isCurrentlyHiddenByDisFilter = columnElement.classList.contains('disfilter-hidden');
@@ -144,6 +235,78 @@ style.textContent = `
     padding: 0 !important;
     overflow: hidden !important;
     pointer-events: none !important;
+}
+
+.disfilter-block-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+    margin: 0 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+}
+
+.disfilter-block-btn:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.1);
+    transform: scale(1.1);
+}
+
+.disfilter-block-btn.blocked {
+    opacity: 1;
+    background-color: rgba(255, 0, 0, 0.1);
+}
+
+.disfilter-block-btn.blocked:hover {
+    background-color: rgba(255, 0, 0, 0.2);
+}
+
+/* Toast notifications */
+.disfilter-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #333;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    z-index: 10000;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.disfilter-toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.disfilter-toast-success {
+    background: #4CAF50;
+}
+
+.disfilter-toast-error {
+    background: #f44336;
+}
+
+/* Responsive positioning for block button */
+@media (max-width: 768px) {
+    .disfilter-block-btn {
+        font-size: 14px;
+        min-width: 20px;
+        height: 20px;
+        margin: 0 2px;
+    }
 }
 `;
 document.head.appendChild(style);
