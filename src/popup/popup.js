@@ -117,7 +117,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             serverIds: [],
         };
         const isBlockingEnabled = result.isBlockingEnabled !== undefined ? result.isBlockingEnabled : true;
-        themePreference = result.themePreference || 'light-mode';
+
+        if (result.themePreference) {
+            themePreference = result.themePreference;
+        } else {
+            themePreference = window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark-mode'
+                : 'light-mode';
+        }
 
         applyTheme(themePreference);
         toggleBlockingButton.setAttribute('aria-pressed', isBlockingEnabled);
