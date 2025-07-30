@@ -3,7 +3,7 @@
     "name": "DisFilter - Disboard Server Filter",
     "short_name": "DisFilter",
     "version": "1.0.0",
-    "description": "A utility extension for filtering servers on Disboard by regex, tags and IDs.",
+    "description": "A utility extension for filtering and blocking servers on Disboard.",
     "author": "vyfor",
     "homepage_url": "https://github.com/vyfor/disfilter",
     "icons": {
@@ -37,5 +37,10 @@
                 "src/content.js"
             ]
         }
-    ]
+    ],
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "disfilter@vyfor"
+        }
+    }
 }
